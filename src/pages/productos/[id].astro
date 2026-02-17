@@ -1,0 +1,265 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getWhatsAppPhone } from '@/services/catalog';
+
+const { id } = Astro.params;
+const phone = getWhatsAppPhone();
+---
+
+<BaseLayout title="Cargando..." description="Cargando producto...">
+  <section class="product-detail">
+    <div class="container">
+      <nav class="breadcrumb">
+        <a href="/">Inicio</a>
+        <span>/</span>
+        <a href="/productos">Productos</a>
+        <span>/</span>
+        <span class="current" id="product-name">Cargando...</span>
+      </nav>
+
+      <button id="back-btn" class="back-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Volver a productos
+      </button>
+
+      <div id="product-content">
+        <div class="loading">Cargando producto...</div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script is:inline define:vars={{ productId: id, phoneNumber: phone }}>
+  const STORAGE_KEY = 'aberturas_products';
+  
+  function formatPrice(price) {
+    return new Intl.NumberFormat('es-AR', {
+      style: 'currency',
+      currency: 'ARS',
+      maximumFractionDigits: 0,
+    }).format(price);
+  }
+  
+  function formatMeasure(value) {
+    if (value === undefined || value === null) return '-';
+    return `${value}m`;
+  }
+  
+  async function loadProduct() {
+    const container = document.getElementById('product-content');
+    const nameEl = document.getElementById('product-name');
+    
+    try {
+      let products = [];
+      const cached = sessionStorage.getItem(STORAGE_KEY);
+      
+      if (cached) {
+        products = JSON.parse(cached);
+      } else {
+        const response = await fetch(window.env.PUBLIC_CATALOG_API_URL);
+        if (!response.ok) throw new Error('Error fetching');
+        products = await response.json();
+        products = products.filter(p => p.activo === 1);
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+      }
+      
+      const product = products.find(p => p.id == productId);
+      
+      if (!product) {
+        container.innerHTML = '<div class="error">Producto no encontrado</div>';
+        return;
+      }
+      
+      nameEl.textContent = product.nombre;
+      document.title = `${product.nombre} | Aberturas Sapper`;
+      
+      const ancho = product['ancho '] ?? product.ancho;
+      const alto = product.alto;
+      const whatsappMessage = encodeURIComponent(`Hola, quiero consultar por el producto: ${product.nombre}`);
+      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${whatsappMessage}`;
+      
+      container.innerHTML = `
+        <div class="product-detail-grid">
+          <div class="product-image">
+            <img src="${product.imagen_url || ''}" alt="${product.nombre || ''}" width="600" height="450" crossorigin="anonymous" />
+          </div>
+          <div class="product-info">
+            <h1 class="product-title">${product.nombre || ''}</h1>
+            <p class="product-description">${product.descripcion || ''}</p>
+            <div class="product-specs">
+              <div class="spec-item">
+                <span class="spec-label">Categoría</span>
+                <span class="spec-value">${product.categoria || ''}</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Línea</span>
+                <span class="spec-value">${product.linea || ''}</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Color</span>
+                <span class="spec-value">${product.color || ''}</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Medidas</span>
+                <span class="spec-value">${formatMeasure(ancho)} x ${formatMeasure(alto)}</span>
+              </div>
+            </div>
+            <p class="product-price">${formatPrice(product.precio || 0)}</p>
+            <a href="${whatsappUrl}" class="btn btn-accent btn-large" target="_blank" rel="noopener noreferrer">
+              Consultar este producto
+            </a>
+          </div>
+        </div>`;
+    } catch (error) {
+      console.error('Error:', error);
+      container.innerHTML = '<div class="error">Error al cargar el producto</div>';
+    }
+  }
+  
+  document.getElementById('back-btn').addEventListener('click', (e) => {
+    e.preventDefault();
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.location.href = '/productos';
+    }
+  });
+  
+  loadProduct();
+</script>
+
+<style>
+  .product-detail {
+    padding: var(--spacing-xl) 0;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-light);
+    margin-bottom: var(--spacing-md);
+    flex-wrap: wrap;
+  }
+
+  .breadcrumb a {
+    color: var(--color-secondary);
+  }
+
+  .breadcrumb .current {
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    color: var(--color-secondary);
+    font-weight: 500;
+    margin-bottom: var(--spacing-lg);
+    transition: color var(--transition-fast);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  .back-link:hover {
+    color: var(--color-primary);
+  }
+
+  .loading, .error {
+    text-align: center;
+    padding: var(--spacing-2xl);
+    color: var(--color-text-light);
+  }
+
+  .error {
+    color: var(--color-accent);
+  }
+
+  .product-detail-grid {
+    display: grid;
+    gap: var(--spacing-xl);
+  }
+
+  .product-image {
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    background-color: var(--color-bg-alt);
+  }
+
+  .product-image img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  .product-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .product-title {
+    font-size: var(--font-size-xl);
+    color: var(--color-primary);
+    line-height: 1.2;
+  }
+
+  .product-description {
+    color: var(--color-text-light);
+    line-height: 1.6;
+  }
+
+  .product-specs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background-color: var(--color-bg-alt);
+    border-radius: var(--border-radius);
+  }
+
+  .spec-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .spec-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-light);
+  }
+
+  .spec-value {
+    font-weight: 500;
+    text-transform: capitalize;
+  }
+
+  .product-price {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--color-secondary);
+  }
+
+  .btn-large {
+    padding: var(--spacing-md) var(--spacing-xl);
+    font-size: var(--font-size-lg);
+  }
+
+  @media (min-width: 768px) {
+    .product-detail-grid {
+      grid-template-columns: 1fr 1fr;
+      align-items: start;
+    }
+
+    .product-specs {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>

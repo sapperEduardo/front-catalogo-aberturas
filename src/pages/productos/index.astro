@@ -1,0 +1,192 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ProductGrid from '@/components/ProductGrid.astro';
+import Filters from '@/components/Filters.astro';
+import { fetchProducts, getCategories, getLines } from '@/services/catalog';
+
+const products = await fetchProducts();
+const categories = getCategories(products);
+const lines = getLines(products);
+
+const url = Astro.url;
+const initialCategory = url.searchParams.get('category') || 'all';
+const initialLine = url.searchParams.get('line') || 'all';
+const initialSearch = url.searchParams.get('search') || '';
+---
+
+<BaseLayout title="Productos" description="Catálogo de aberturas de aluminio">
+  <section class="products-page">
+    <div class="container">
+      <h1 class="page-title">Nuestros Productos</h1>
+      
+      <Filters 
+        categories={categories} 
+        lines={lines}
+        currentCategory={initialCategory}
+        currentLine={initialLine}
+        currentSearch={initialSearch}
+      />
+
+      <div id="products-container">
+        <div class="loading" id="loading">Cargando productos...</div>
+        <ProductGrid products={products} />
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script is:inline define:vars={{ initialCategory, initialLine, initialSearch }}>
+  const STORAGE_KEY = 'aberturas_products';
+  
+  async function fetchAndRender() {
+    const container = document.getElementById('products-container');
+    const loading = document.getElementById('loading');
+    
+    try {
+      let products = [];
+      
+      const cached = sessionStorage.getItem(STORAGE_KEY);
+      const cachedTime = sessionStorage.getItem(STORAGE_KEY + '_time');
+      const now = Date.now();
+      const CACHE_DURATION = 5 * 60 * 1000;
+      
+      if (cached && cachedTime && (now - parseInt(cachedTime)) < CACHE_DURATION) {
+        products = JSON.parse(cached);
+      } else {
+        if (loading) loading.textContent = 'Actualizando productos...';
+        const response = await fetch(window.env.PUBLIC_CATALOG_API_URL);
+        if (!response.ok) throw new Error('Error fetching');
+        products = await response.json();
+        products = products.filter(p => p.activo === 1);
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+        sessionStorage.setItem(STORAGE_KEY + '_time', now.toString());
+      }
+      
+      renderProducts(products);
+      if (loading) loading.style.display = 'none';
+    } catch (error) {
+      console.error('Error:', error);
+      if (loading) {
+        loading.textContent = 'Error al cargar productos. Intenta nuevamente.';
+        loading.classList.add('error');
+      }
+    }
+  }
+  
+  function filterAndRender(products) {
+    const form = document.getElementById('filters-form');
+    if (!form) return;
+    
+    const formData = new FormData(form);
+    const search = (formData.get('search') || '').toString();
+    const category = formData.get('category') || 'all';
+    const line = formData.get('line') || 'all';
+    
+    const filtered = products.filter(p => {
+      if (category !== 'all' && p.categoria !== category) return false;
+      if (line !== 'all' && p.linea !== line) return false;
+      if (search) {
+        const s = search.toLowerCase();
+        const matchesName = p.nombre?.toLowerCase().includes(s);
+        const matchesDesc = p.descripcion?.toLowerCase().includes(s);
+        const matchesAncho = String(p.ancho || p['ancho '] || '').toLowerCase().includes(s);
+        const matchesAlto = String(p.alto || '').toLowerCase().includes(s);
+        if (!matchesName && !matchesDesc && !matchesAncho && !matchesAlto) return false;
+      }
+      return true;
+    });
+    
+    renderProducts(filtered);
+  }
+  
+  function renderProducts(products) {
+    const container = document.getElementById('products-container');
+    if (!container) return;
+    
+    let grid = container.querySelector('.product-grid');
+    if (!grid) {
+      grid = document.createElement('div');
+      grid.className = 'product-grid';
+      container.appendChild(grid);
+    }
+    
+    if (products.length === 0) {
+      grid.innerHTML = '<div class="empty-state"><p>No se encontraron productos</p></div>';
+      return;
+    }
+    
+    grid.innerHTML = products.map(p => {
+      const ancho = p.ancho || p['ancho '] || '-';
+      const alto = p.alto || '-';
+      return `<article class="product-card">
+        <a href="/productos/${p.id}" class="product-link">
+          <div class="product-image">
+            <img src="${p.imagen_url || ''}" alt="${p.nombre || ''}" loading="lazy" width="400" height="300" crossorigin="anonymous" />
+          </div>
+          <div class="product-content">
+            <h3 class="product-title">${p.nombre || ''}</h3>
+            <p class="product-description">${p.descripcion || ''}</p>
+            <div class="product-meta">
+              <span class="product-category">${p.categoria || ''}</span>
+              <span class="product-line">${p.linea || ''}</span>
+            </div>
+            <p class="product-price">${formatPrice(p.precio || 0)}</p>
+            <span class="btn btn-primary">Ver detalles</span>
+          </div>
+        </a>
+      </article>`;
+    }).join('');
+  }
+  
+  function formatPrice(price) {
+    return new Intl.NumberFormat('es-AR', {
+      style: 'currency',
+      currency: 'ARS',
+      maximumFractionDigits: 0,
+    }).format(price);
+  }
+  
+  document.addEventListener('DOMContentLoaded', () => {
+    fetchAndRender();
+    
+    const form = document.getElementById('filters-form');
+    if (form) {
+      form.addEventListener('input', () => {
+        const cached = sessionStorage.getItem(STORAGE_KEY);
+        if (cached) {
+          const products = JSON.parse(cached);
+          filterAndRender(products);
+        }
+      });
+    }
+  });
+</script>
+
+<style>
+  .products-page {
+    padding: var(--spacing-xl) 0;
+  }
+
+  .page-title {
+    font-size: var(--font-size-xl);
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-lg);
+    text-align: center;
+  }
+
+  .loading {
+    text-align: center;
+    padding: var(--spacing-xl);
+    color: var(--color-text-light);
+  }
+
+  .loading.error {
+    color: var(--color-accent);
+  }
+
+  :global(.empty-state) {
+    text-align: center;
+    padding: var(--spacing-2xl);
+    color: var(--color-text-light);
+  }
+</style>

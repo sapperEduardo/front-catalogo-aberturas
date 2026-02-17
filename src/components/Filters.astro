@@ -1,0 +1,124 @@
+---
+import type { Category, Line } from '@/types';
+
+interface Props {
+  categories: Category[];
+  lines: Line[];
+  currentCategory?: string;
+  currentLine?: string;
+  currentSearch?: string;
+}
+
+const { categories, lines, currentCategory = 'all', currentLine = 'all', currentSearch = '' } = Astro.props;
+---
+
+<form class="filters" id="filters-form">
+  <div class="filter-group search-group">
+    <label for="search" class="sr-only">Buscar productos</label>
+    <input 
+      type="search" 
+      id="search" 
+      name="search" 
+      placeholder="Buscar productos..." 
+      value={currentSearch}
+      class="filter-input"
+    />
+  </div>
+
+  <div class="filter-group">
+    <label for="category" class="filter-label">Categoría</label>
+    <select id="category" name="category" class="filter-select">
+      <option value="all" selected={currentCategory === 'all'}>Todas las categorías</option>
+      {categories.map((cat) => (
+        <option value={cat.id} selected={currentCategory === cat.id}>{cat.name}</option>
+      ))}
+    </select>
+  </div>
+
+  <div class="filter-group">
+    <label for="line" class="filter-label">Línea</label>
+    <select id="line" name="line" class="filter-select">
+      <option value="all" selected={currentLine === 'all'}>Todas las líneas</option>
+      {lines.map((line) => (
+        <option value={line.id} selected={currentLine === line.id}>{line.name}</option>
+      ))}
+    </select>
+  </div>
+
+  <button type="submit" class="sr-only">Aplicar filtros</button>
+</form>
+
+<style>
+  .filters {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background-color: var(--color-bg-alt);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .filter-label {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--color-text-light);
+  }
+
+  .filter-input,
+  .filter-select {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-sm);
+    font-size: var(--font-size-base);
+    background-color: var(--color-bg);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .filter-input:focus,
+  .filter-select:focus {
+    outline: none;
+    border-color: var(--color-secondary);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+  }
+
+  .search-group {
+    flex: 1;
+  }
+
+  .search-group .filter-input {
+    width: 100%;
+  }
+
+  @media (min-width: 640px) {
+    .filters {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .search-group {
+      flex: 1 1 100%;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .filters {
+      flex-wrap: nowrap;
+    }
+
+    .search-group {
+      flex: 1 1 auto;
+    }
+
+    .filter-group {
+      flex: 0 0 auto;
+      min-width: 150px;
+    }
+  }
+</style>

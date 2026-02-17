@@ -1,0 +1,48 @@
+---
+import type { Product } from '@/types';
+import ProductCard from './ProductCard.astro';
+
+interface Props {
+  products: Product[];
+}
+
+const { products } = Astro.props;
+---
+
+{products.length === 0 ? (
+  <div class="empty-state">
+    <p>No se encontraron productos</p>
+  </div>
+) : (
+  <div class="product-grid">
+    {products.map((product) => (
+      <ProductCard product={product} />
+    ))}
+  </div>
+)}
+
+<style>
+  .product-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: var(--spacing-2xl);
+    color: var(--color-text-light);
+  }
+
+  @media (min-width: 640px) {
+    .product-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .product-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

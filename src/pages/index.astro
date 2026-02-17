@@ -1,0 +1,206 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Inicio">
+  <section class="hero">
+    <div class="container hero-content">
+      <h1 class="hero-title">Aberturas de aluminio a medida</h1>
+      <p class="hero-subtitle">Fabricación e instalación de ventanas y puertas de aluminio</p>
+      <div class="hero-cta">
+        <a href="/productos" class="btn btn-primary">Ver productos</a>
+        <a href="/contacto" class="btn btn-outline">Contactar</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="about">
+    <div class="container">
+      <h2 class="section-title">Quiénes somos</h2>
+      <div class="about-content">
+        <p>
+          En <strong>Aberturas Sapper</strong> nos especializamos en la fabricación e instalación 
+          de aberturas de aluminio de alta calidad. Con años de experiencia en el sector, 
+          garantizamos trabajos a medida con materiales de primera línea y atención personalizada.
+        </p>
+      </div>
+      <div class="benefits">
+        <div class="benefit">
+          <div class="benefit-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+          </div>
+          <h3 class="benefit-title">A medida</h3>
+          <p class="benefit-text">Cada proyecto es único. Fabricamos según tus necesidades específicas.</p>
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          <h3 class="benefit-title">Calidad</h3>
+          <p class="benefit-text">Materiales de primera línea y acabados profesionales.</p>
+        </div>
+        <div class="benefit">
+          <div class="benefit-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <h3 class="benefit-title">Profesional</h3>
+          <p class="benefit-text">Instalación profesional con garantía de satisfacción.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="container">
+      <h2 class="cta-title">¿Necesitas cotización?</h2>
+      <p class="cta-text">Contáctanos y te responderemos a la brevedad</p>
+      <a href="/contacto" class="btn btn-accent">Consultar ahora</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    background: linear-gradient(135deg, var(--color-primary) 0%, #34495e 100%);
+    color: white;
+    padding: var(--spacing-2xl) 0;
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+  }
+
+  .hero-content {
+    text-align: center;
+    max-width: 800px;
+  }
+
+  .hero-title {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    margin-bottom: var(--spacing-md);
+    line-height: 1.2;
+  }
+
+  .hero-subtitle {
+    font-size: var(--font-size-lg);
+    opacity: 0.9;
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .hero-cta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    justify-content: center;
+  }
+
+  .hero-cta .btn {
+    min-width: 200px;
+  }
+
+  .hero-cta .btn-outline {
+    border-color: white;
+    color: white;
+  }
+
+  .hero-cta .btn-outline:hover {
+    background-color: white;
+    color: var(--color-primary);
+  }
+
+  .about {
+    padding: var(--spacing-2xl) 0;
+  }
+
+  .section-title {
+    font-size: var(--font-size-xl);
+    color: var(--color-primary);
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .about-content {
+    max-width: 800px;
+    margin: 0 auto var(--spacing-xl);
+    text-align: center;
+    line-height: 1.8;
+    color: var(--color-text-light);
+  }
+
+  .benefits {
+    display: grid;
+    gap: var(--spacing-lg);
+  }
+
+  .benefit {
+    text-align: center;
+    padding: var(--spacing-lg);
+    background-color: var(--color-bg-alt);
+    border-radius: var(--border-radius);
+  }
+
+  .benefit-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto var(--spacing-md);
+    color: var(--color-secondary);
+  }
+
+  .benefit-title {
+    font-size: var(--font-size-lg);
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .benefit-text {
+    color: var(--color-text-light);
+    font-size: var(--font-size-sm);
+  }
+
+  .cta-section {
+    background-color: var(--color-bg-alt);
+    padding: var(--spacing-2xl) 0;
+    text-align: center;
+  }
+
+  .cta-title {
+    font-size: var(--font-size-xl);
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .cta-text {
+    color: var(--color-text-light);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  @media (min-width: 640px) {
+    .hero-cta {
+      flex-direction: row;
+    }
+
+    .benefits {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .hero-title {
+      font-size: 2.5rem;
+    }
+
+    .hero-subtitle {
+      font-size: var(--font-size-xl);
+    }
+  }
+</style>

@@ -1,0 +1,212 @@
+---
+const navLinks = [
+  { href: '/', label: 'Inicio' },
+  { href: '/productos', label: 'Productos' },
+  { href: '/contacto', label: 'Contacto' },
+];
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="header">
+  <div class="container header-content">
+    <a href="/" class="logo">
+      <span class="logo-text">Aberturas Sapper</span>
+    </a>
+    
+    <nav class="nav-desktop">
+      {navLinks.map(link => (
+        <a 
+          href={link.href} 
+          class:list={['nav-link', { active: currentPath === link.href }]}
+        >
+          {link.label}
+        </a>
+      ))}
+    </nav>
+
+    <button class="menu-toggle" aria-label="Abrir menú" id="menu-toggle">
+      <span class="hamburger"></span>
+    </button>
+  </div>
+
+  <nav class="nav-mobile" id="nav-mobile">
+    {navLinks.map(link => (
+      <a 
+        href={link.href} 
+        class:list={['nav-link', { active: currentPath === link.href }]}
+      >
+        {link.label}
+      </a>
+    ))}
+  </nav>
+</header>
+
+<script>
+  const menuToggle = document.getElementById('menu-toggle');
+  const navMobile = document.getElementById('nav-mobile');
+
+  menuToggle?.addEventListener('click', () => {
+    navMobile?.classList.toggle('is-open');
+    menuToggle.classList.toggle('is-open');
+  });
+</script>
+
+<style>
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-height);
+    background-color: var(--color-bg);
+    box-shadow: var(--shadow-sm);
+    z-index: 100;
+  }
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
+
+  .logo-text {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+
+  .nav-desktop {
+    display: none;
+    gap: var(--spacing-lg);
+  }
+
+  .nav-link {
+    font-weight: 500;
+    color: var(--color-text);
+    transition: color var(--transition-fast);
+    padding: var(--spacing-sm) 0;
+    position: relative;
+  }
+
+  .nav-link:hover,
+  .nav-link.active {
+    color: var(--color-secondary);
+  }
+
+  .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: var(--color-secondary);
+  }
+
+  .menu-toggle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--spacing-sm);
+  }
+
+  .hamburger {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background-color: var(--color-primary);
+    position: relative;
+    transition: background-color var(--transition-fast);
+  }
+
+  .hamburger::before,
+  .hamburger::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 24px;
+    height: 2px;
+    background-color: var(--color-primary);
+    transition: transform var(--transition-fast);
+  }
+
+  .hamburger::before {
+    top: -8px;
+  }
+
+  .hamburger::after {
+    top: 8px;
+  }
+
+  .menu-toggle.is-open .hamburger {
+    background-color: transparent;
+  }
+
+  .menu-toggle.is-open .hamburger::before {
+    transform: translateY(8px) rotate(45deg);
+  }
+
+  .menu-toggle.is-open .hamburger::after {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+
+  .nav-mobile {
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+    right: 0;
+    background-color: var(--color-bg);
+    padding: var(--spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-100%);
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-normal);
+  }
+
+  .nav-mobile.is-open {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .nav-mobile .nav-link {
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-sm);
+  }
+
+  .nav-mobile .nav-link:hover {
+    background-color: var(--color-bg-alt);
+  }
+
+  @media (min-width: 768px) {
+    .nav-desktop {
+      display: flex;
+    }
+
+    .menu-toggle {
+      display: none;
+    }
+
+    .nav-mobile {
+      display: none;
+    }
+  }
+</style>
