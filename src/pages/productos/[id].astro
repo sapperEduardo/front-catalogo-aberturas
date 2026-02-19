@@ -90,19 +90,19 @@ const phone = getWhatsAppPhone();
             <p class="product-description">${product.descripcion || ''}</p>
             <div class="product-specs">
               <div class="spec-item">
-                <span class="spec-label">Categoría</span>
+                <span class="spec-label">Categoría:</span>
                 <span class="spec-value">${product.categoria || ''}</span>
               </div>
               <div class="spec-item">
-                <span class="spec-label">Línea</span>
+                <span class="spec-label">Línea:</span>
                 <span class="spec-value">${product.linea || ''}</span>
               </div>
               <div class="spec-item">
-                <span class="spec-label">Color</span>
+                <span class="spec-label">Color:</span>
                 <span class="spec-value">${product.color || ''}</span>
               </div>
               <div class="spec-item">
-                <span class="spec-label">Medidas</span>
+                <span class="spec-label">Medidas:</span>
                 <span class="spec-value">${formatMeasure(ancho)} x ${formatMeasure(alto)}</span>
               </div>
             </div>
@@ -219,7 +219,7 @@ const phone = getWhatsAppPhone();
   .product-specs {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
     padding: var(--spacing-md);
     background-color: var(--color-bg-alt);
     border-radius: var(--border-radius);
@@ -237,29 +237,40 @@ const phone = getWhatsAppPhone();
   }
 
   .spec-value {
-    font-weight: 500;
+    font-size: 0.75rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background-color: var(--color-bg-alt);
+    border-radius: var(--border-radius-sm);
+    color: var(--color-text-light);
     text-transform: capitalize;
+    font-weight: 500;
   }
 
   .product-price {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-xl);
     font-weight: 700;
     color: var(--color-secondary);
+    margin-top: var(--spacing-md);
   }
 
   .btn-large {
     padding: var(--spacing-md) var(--spacing-xl);
     font-size: var(--font-size-lg);
+    margin-top: var(--spacing-lg);
   }
 
   @media (min-width: 768px) {
     .product-detail-grid {
       grid-template-columns: 1fr 1fr;
-      align-items: start;
+      align-items: center;
+    }
+
+    .product-info {
+      text-align: center;
     }
 
     .product-specs {
-      grid-template-columns: repeat(2, 1fr);
+      justify-items: center;
     }
   }
 </style>
